@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Http;
@@ -24,11 +25,17 @@ namespace pm.test.rest
             return content;
         }
 
-        private HttpResponseMessage MakeRequest(RequestType reqType, string uri, HttpContent content = null)
+        private HttpResponseMessage MakeRequest(RequestType reqType, string uri, HttpContent content, string authToken = null)
         {
             var client = new HttpClient();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
 
+            if (authToken != null)
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+            }
+            
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json")); //ACCEPT header
+            
             var meth = new HttpMethod(Enum.GetName(typeof(RequestType), reqType));
             var req = new HttpRequestMessage(meth, uri);
             if (content != null)
@@ -40,24 +47,24 @@ namespace pm.test.rest
             return msg;
         }
 
-        public HttpResponseMessage Get(string uri)
+        public HttpResponseMessage Get(string uri, string authtoken = null)
         {
-            return MakeRequest(RequestType.GET, uri);
+            return MakeRequest(RequestType.GET, uri, null,  authtoken);
         }
 
-        public HttpResponseMessage Put(string uri, string json)
+        public HttpResponseMessage Put(string uri, string json, string authtoken = null)
         {
-            return MakeRequest(RequestType.PUT, uri, PackageContent(json));
+            return MakeRequest(RequestType.PUT, uri, PackageContent(json), authtoken);
         }
 
-        public HttpResponseMessage Post(string uri, string json)
+        public HttpResponseMessage Post(string uri, string json, string authtoken = null)
         {
-            return MakeRequest(RequestType.POST, uri, PackageContent(json));
+            return MakeRequest(RequestType.POST, uri, PackageContent(json), authtoken);
         }
 
-        public HttpResponseMessage Delete(string uri)
+        public HttpResponseMessage Delete(string uri, string authtoken = null)
         {
-            return MakeRequest(RequestType.DELETE, uri);
+            return MakeRequest(RequestType.DELETE, uri, null, authtoken);
         }
     }
 
